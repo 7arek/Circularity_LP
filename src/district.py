@@ -67,6 +67,12 @@ def build_single_district_mip(DG : nx.DiGraph, root: int | None = None):
     m.update()
 
     ###################################
+    # ADD DISTRICT SIZE CONSTRAINT
+    ###################################
+
+    m.addConstr(gp.quicksum(m._x[i] for i in DG.nodes) >= 1)
+
+    ###################################
     # ADD CONTIGUITY CONSTRAINTS
     ###################################
 
@@ -111,7 +117,7 @@ def cut_callback(m, where):
         for component in sorted(nx.strongly_connected_components(DG.subgraph(S)), key=len, reverse=True):
 
             # what is the maximum population node in this component?
-            maxp = max(DG.nodes[v]['node_weight'] for v in component) #TODO weight might be referenced wrong
+            maxp = max(DG.nodes[v]['node_weight'] for v in component)
             mpv = [v for v in component if DG.nodes[v]['node_weight'] == maxp][0]
 
             # if no root 'b' has been selected yet, pick one
