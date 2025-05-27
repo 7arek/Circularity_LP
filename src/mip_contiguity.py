@@ -1,7 +1,13 @@
+import networkx as nx
+
+"""
+Code based on "Political districting to optimize the Polsby-Popper compactness score with application to  voting
+rights"
+"""
+
 def find_fischetti_separator(DG, component, b):
     """
     From Fischetti, et al. (2017).
-    Code from "Political districting to optimize the Polsby-Popper compactness score with application to voting rights"
     """
 
     neighbors_component = {i: False for i in DG.nodes}
