@@ -6,10 +6,12 @@ import csv
 def read_graph_from_dataset(dataset : str) -> nx.DiGraph:
     """
     Reads a dataset from datasets/{dataset} and loads it as a networkx DiGraph.
+    Loads the networkx Graph in the correct format for our MIP solver.
 
     :param dataset: Name of the dataset (e.g., 'issoire')
-    :return: A networkx.DiGraph object
+    :return: A networkx.DiGraph object representing the graph from the dataset
     """
+
     # Construct the file paths
     edges_file_path = os.path.join("datasets", dataset, f"{dataset}_edges.csv")
     vertices_file_path = os.path.join("datasets", dataset, f"{dataset}_vertices.csv")

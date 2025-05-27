@@ -13,6 +13,13 @@ rights"
 
 
 def build_single_district_mip(DG : nx.DiGraph, root: int | None = None):
+    """
+    Builds a MISOCP model for a single district in a directed graph DG, with the goal of maximizing the Polsby-Popper score.
+    :param DG: Directed graph representing the districting problem, where nodes have 'node_weight' and 'boundary_perim' attributes,
+                and edges have 'shared_perim' attribute.
+    :param root: Optional root node for the district, used to ensure contiguity. If None, no specific root is enforced.
+    :return: A Gurobi model object representing the districting problem.
+    """
 
     ##################################
     # CREATE MODEL AND MAIN VARIABLES
@@ -98,6 +105,16 @@ def build_single_district_mip(DG : nx.DiGraph, root: int | None = None):
 
 
 def cut_callback(m, where):
+    """
+    Callback function to add lazy cuts for the single district MISOCP model.
+    This function is triggered internally during the MIP solution process to enforce contiguity constraints.
+
+    :param m: Gurobi model object representing the districting problem.
+    :param where: Callback trigger point, indicating the type of callback event.
+    :return: None
+    """
+
+
     if where == GRB.Callback.MIPSOL:
         m._numCallbacks += 1
         DG = m._DG
@@ -137,7 +154,6 @@ def cut_callback(m, where):
             # add lazy cut
             m.cbLazy(m._x[a] + m._x[b] <= 1 + gp.quicksum(m._x[c] for c in C))
             m._numLazyCuts += 1
-
 
     return
 

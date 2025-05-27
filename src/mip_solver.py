@@ -13,7 +13,10 @@ rights"
 def solve_single_district_mip(DG: nx.DiGraph) -> tuple[list[int], gp.Model] | None:
     """
     Solve the single district MIP model.
-    TODO: I dont know if this is correctly implemented.
+    :param DG: Directed graph representing the districting problem, where nodes have 'node_weight' and 'boundary_perim' attributes,
+                    and edges have 'shared_perim' attribute.
+    :return: A tuple containing the list of nodes in the district and the Gurobi model object.
+    TODO: I dont know if this is correctly implemented (e.g. if the hyperparameters are set correctly).
     """
     m = build_single_district_mip(DG)
 
@@ -27,30 +30,32 @@ def solve_single_district_mip(DG: nx.DiGraph) -> tuple[list[int], gp.Model] | No
     m.optimize(m._callback)
 
     # Check if a solution was found
-    print("Model status:", m.status)
-    if m.status == GRB.OPTIMAL or m.status == GRB.TIME_LIMIT:
-        # Extract the solution
-        solution = [i for i in DG.nodes if m._x[i].x > 0.5]
-        return solution, m
-    else:
-        print("No optimal solution found.")
-        return None
+    if not m.status == GRB.OPTIMAL or m.status == GRB.TIME_LIMIT:
+        print("ERROR: !!!Something went wrong when solving the MIP model.!!!")
+
+    # Extract the solution
+    solution = [i for i in DG.nodes if m._x[i].x > 0.5]
+    return solution, m
 
 
-def print_solution(m: gp.Model, solution: list[int]) -> None:
+def print_solution(m: gp.Model, solution: list[int], print_all_vars : bool = True) -> None:
     """
     Print the solution of the MIP model.
     """
     print("######Optimal solution found######")
+
+    if print_all_vars:
+        print(f"Printing all variables:")
+        for v in m.getVars():
+            print(f"{v.varName}: {v.x:.4f}")
+
+    print("######Solution summary######")
     print(f"District nodes: {solution}")
     pp_inverse = float(m._z.x)
     print(f"Polsby-Popper score: {'infinity' if pp_inverse == 0 else f'{1/pp_inverse:.4f}'}")
-    print(f"Polsby-Popper score (inverse): {m._z.x:.4f}")
+    print(f"Inverse Polsby-Popper score (Objective value): {m._z.x:.4f}")
     print(f"Area: {m._A.x:.4f}")
     print(f"Perimeter: {m._P.x:.4f}")
-    print(f"Objective value: {m.objVal:.4f}")
     print(f"Model status: {m.status}")  # Print the model status
-    print(f"DEBUGGING INFO:")
-    for v in m.getVars():
-        print(f"{v.varName}: {v.x:.4f}")
+
 
