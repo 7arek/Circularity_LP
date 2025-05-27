@@ -1,5 +1,5 @@
 from graph_utils import read_graph_from_dataset, print_graph
-from mip_solver import solve_single_district_mip
+from mip_solver import solve_single_district_mip, print_solution
 
 
 def solve(dataset: str):
@@ -8,7 +8,9 @@ def solve(dataset: str):
 
     # print_graph(graph)
 
-    solve_single_district_mip(graph)
+    solution, m = solve_single_district_mip(graph)
+
+    print_solution(m, solution)
 
 
 if __name__ == '__main__':
