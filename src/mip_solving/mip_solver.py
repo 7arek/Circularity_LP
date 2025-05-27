@@ -1,3 +1,5 @@
+import os
+
 import networkx as nx
 import gurobipy as gp
 from gurobipy import GRB
@@ -38,24 +40,33 @@ def solve_single_district_mip(DG: nx.DiGraph) -> tuple[list[int], gp.Model] | No
     return solution, m
 
 
-def print_solution(m: gp.Model, solution: list[int], print_all_vars : bool = True) -> None:
+def print_solution(m: gp.Model, solution: list[int], dataset_name: str, print_all_vars: bool = True) -> None:
     """
-    Print the solution of the MIP model.
+    Print the solution of the MIP model and save it to a file.
     """
-    print("######Optimal solution found######")
-
-    if print_all_vars:
-        print(f"Printing all variables:")
-        for v in m.getVars():
-            print(f"{v.varName}: {v.x:.4f}")
-
-    print("######Solution summary######")
-    print(f"District nodes: {solution}")
+    output_summary = []
+    output_summary.append("######Solution summary######")
+    output_summary.append(f"District nodes: {solution}")
     pp_inverse = float(m._z.x)
-    print(f"Polsby-Popper score: {'infinity' if pp_inverse == 0 else f'{1/pp_inverse:.4f}'}")
-    print(f"Inverse Polsby-Popper score (Objective value): {m._z.x:.4f}")
-    print(f"Area: {m._A.x:.4f}")
-    print(f"Perimeter: {m._P.x:.4f}")
-    print(f"Model status: {m.status}")  # Print the model status
+    output_summary.append(f"Polsby-Popper score: {'infinity' if pp_inverse == 0 else f'{1/pp_inverse:.4f}'}")
+    output_summary.append(f"Inverse Polsby-Popper score (Objective value): {m._z.x:.4f}")
+    output_summary.append(f"Area: {m._A.x:.4f}")
+    output_summary.append(f"Perimeter: {m._P.x:.4f}")
+    output_summary.append(f"Model status: {m.status}")  # Print the model status
+
+    output_vars = []
+    if print_all_vars:
+        output_vars.append("######All Variables######")
+        for v in m.getVars():
+            output_vars.append(f"{v.varName}: {v.x:.4f}")
+
+    # Save the output string to a file
+    os.makedirs(os.path.join("data", "solutions"), exist_ok=True)
+    solutions_path = os.path.join("data", "solutions", f"{dataset_name}.txt")
+    with open(solutions_path, "w") as file:
+        file.write("\n".join(output_summary + output_vars))
+
+    # Print only the solution summary to the console
+    print("\n".join(output_summary))
 
 
