@@ -40,6 +40,7 @@ def read_graph_from_dataset(dataset : str) -> nx.DiGraph:
                 graph.nodes[valid_vertex]['boundary_perim'] = weight
             else:
                 graph.add_edge(source, target, shared_perim=weight)
+                graph.add_edge(target, source, shared_perim=weight)
 
     return graph
 
