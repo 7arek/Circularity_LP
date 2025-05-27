@@ -70,3 +70,18 @@ def print_solution(m: gp.Model, solution: list[int], dataset_name: str, print_al
     print("\n".join(output_summary))
 
 
+def save_solution_csv(solution: list[int], dataset_name: str) -> None:
+    """
+    Save the solution to a CSV file.
+    :param solution: List of node IDs in the district.
+    :param dataset_name: Name of the dataset (used for the output file).
+    """
+    os.makedirs(os.path.join("data", "solutions"), exist_ok=True)
+    solution_path = os.path.join("data", "solutions", f"{dataset_name}_vertices.csv")
+
+    with open(solution_path, "w") as file:
+        file.write("[")
+        file.write(",".join(map(str, solution)))
+        file.write("]\n")  # Ensure the last line ends with a newline character
+
+
