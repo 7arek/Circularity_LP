@@ -20,6 +20,9 @@ def solve_single_district_mip(DG: nx.DiGraph) -> tuple[list[int], gp.Model] | No
     # Set time limit for the optimization
     m.Params.TimeLimit = 3600  # 1 hour
 
+    # Limit to 1 Thread
+    m.Params.Threads = 1
+
     # Optimize the model
     m.optimize(m._callback)
 
@@ -32,3 +35,22 @@ def solve_single_district_mip(DG: nx.DiGraph) -> tuple[list[int], gp.Model] | No
     else:
         print("No optimal solution found.")
         return None
+
+
+def print_solution(m: gp.Model, solution: list[int]) -> None:
+    """
+    Print the solution of the MIP model.
+    """
+    print("######Optimal solution found######")
+    print(f"District nodes: {solution}")
+    pp_inverse = float(m._z.x)
+    print(f"Polsby-Popper score: {'infinity' if pp_inverse == 0 else f'{1/pp_inverse:.4f}'}")
+    print(f"Polsby-Popper score (inverse): {m._z.x:.4f}")
+    print(f"Area: {m._A.x:.4f}")
+    print(f"Perimeter: {m._P.x:.4f}")
+    print(f"Objective value: {m.objVal:.4f}")
+    print(f"Model status: {m.status}")  # Print the model status
+    print(f"DEBUGGING INFO:")
+    for v in m.getVars():
+        print(f"{v.varName}: {v.x:.4f}")
+
