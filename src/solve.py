@@ -9,6 +9,10 @@ def solve():
     for u, v, data in graph.edges(data=True):
         print(f"Edge from {u} to {v} with weight {data['weight']}")
 
+    # Print the nodes with weights
+    for node, data in graph.nodes(data=True):
+        print(f"Node {node} with weight {data['weight']}")
+
 
 
 if __name__ == '__main__':
