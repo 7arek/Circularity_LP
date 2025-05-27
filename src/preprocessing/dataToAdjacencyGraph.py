@@ -3,6 +3,7 @@ import argparse
 from libpysal import weights
 import libpysal
 import matplotlib
+
 matplotlib.use('TkAgg')  # Use a standard backend (for pycharm)
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -78,14 +79,14 @@ def visualizeGraph(graph, subdivision, dataset_name):
     for node, (x, y) in positions.items():
         ax.text(x, y, str(id_map[node]), fontsize=14, ha='center', va='center', color='red')
 
-    #draw a title
+    # draw a title
     ax.set_title(f"Connectivity Graph of {dataset_name}", fontsize=16, pad=20)
 
 
-def processDataset(dataset_name):
-    print(dataset_name)
+def processDataset(dataset_path):
+    dataset_name = dataset_path.split("/")[-1]  # Get the last part of the path as dataset name
 
-    path = os.path.join("res", "roads-reduced", f"{dataset_name}.shp")
+    path = os.path.join("data", "shape", f"{dataset_path}.shp")
 
     subdivision = geopandas.read_file(path)
     # print(subdivision.crs)
@@ -150,8 +151,7 @@ def processDataset(dataset_name):
     # The command assumes that the ids are in the first column
     # ids =  list(subdivision.iloc[:, 0])
 
-
-    csv_path = os.path.join("res", "graphs", f"{dataset_name}", f"{dataset_name}")
+    csv_path = os.path.join("data", "graphs", f"{dataset_name}", f"{dataset_name}")
     writeGraphToCsv(graph, csv_path)
 
     visualizeGraph(graph, subdivision, dataset_name)
@@ -164,7 +164,10 @@ if __name__ == '__main__':
     from multiprocessing import Pool
 
     datasets = [
-        "avignon", "braunschweig", "issoire", "karlsruhe", "neumuenster"
+        "roads-reduced/avignon",
+        "roads-reduced/braunschweig", "roads-reduced/issoire", "roads-reduced/karlsruhe",
+        "roads-reduced/neumuenster",
+        # "rheinruhr/rheinruhr"
         # ,"F_NUTS3_UTM"
     ]
     # datasets = ["issoire"]

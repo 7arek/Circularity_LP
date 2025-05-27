@@ -22,4 +22,9 @@ def solve(dataset: str):
 
 
 if __name__ == '__main__':
-    solve("issoire")
+    # datasets = ["issoire", "avignon", "braunschweig", "karlsruhe", "neumuenster"]
+    # solve("issoire")
+    # solve("avignon")
+    # solve("braunschweig")
+    # solve("karlsruhe")
+    solve("neumuenster")
