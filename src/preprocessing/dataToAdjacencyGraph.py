@@ -56,7 +56,7 @@ def writeGraphToCsv(graph, filename, ids=None):
             file.write("\n")
 
 
-def visualizeGraph(graph, subdivision):
+def visualizeGraph(graph, subdivision, dataset_name):
     """Visualize a connectivity graph of a planar subdivision with vertex IDs matching those in _vertices.txt."""
 
     # Use the same IDs as in writeGraphToTxt (first column of subdivision)
@@ -78,11 +78,14 @@ def visualizeGraph(graph, subdivision):
     for node, (x, y) in positions.items():
         ax.text(x, y, str(id_map[node]), fontsize=14, ha='center', va='center', color='red')
 
+    #draw a title
+    ax.set_title(f"Connectivity Graph of {dataset_name}", fontsize=16, pad=20)
 
-def processDataset(dataset):
-    print(dataset)
 
-    path = os.path.join("res", "roads-reduced", f"{dataset}.shp")
+def processDataset(dataset_name):
+    print(dataset_name)
+
+    path = os.path.join("res", "roads-reduced", f"{dataset_name}.shp")
 
     subdivision = geopandas.read_file(path)
     # print(subdivision.crs)
@@ -148,10 +151,10 @@ def processDataset(dataset):
     # ids =  list(subdivision.iloc[:, 0])
 
 
-    csv_path = os.path.join("res", "graphs", f"{dataset}", f"{dataset}")
+    csv_path = os.path.join("res", "graphs", f"{dataset_name}", f"{dataset_name}")
     writeGraphToCsv(graph, csv_path)
 
-    visualizeGraph(graph, subdivision)
+    visualizeGraph(graph, subdivision, dataset_name)
 
 
 parser = argparse.ArgumentParser(description="Path to data directory")
@@ -160,11 +163,11 @@ parser.add_argument('-d', '--dir', type=str, default=None, help='Path to the dir
 if __name__ == '__main__':
     from multiprocessing import Pool
 
-    # datasets = [
-    #     "avignon", "braunschweig", "issoire", "karlsruhe", "neumuenster",
-    #     "F_NUTS3_UTM"
-    # ]
-    datasets = ["issoire"]
+    datasets = [
+        "avignon", "braunschweig", "issoire", "karlsruhe", "neumuenster"
+        # ,"F_NUTS3_UTM"
+    ]
+    # datasets = ["issoire"]
     # datasets = ["F_NUTS3_UTM"]
     # with Pool() as p:
     #     p.map(processDataset, datasets)
