@@ -2,6 +2,8 @@ import argparse
 
 from libpysal import weights
 import libpysal
+import matplotlib
+matplotlib.use('TkAgg')  # Use a standard backend (for pycharm)
 import matplotlib.pyplot as plt
 import networkx as nx
 import geopandas
@@ -13,13 +15,16 @@ import argparse
 import os
 
 
-def writeGraphToTxt(graph, filename, ids=None):
-    """Write a weighted NetworkX graph to a file using all attributes of the 
+def writeGraphToCsv(graph, filename, ids=None):
+    """Write a weighted NetworkX graph to a file using all attributes of the
     nodes.
     """
 
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
     # Open a file for writing the vertices
-    with open(filename + "_vertices.txt", "w") as file:
+    with open(filename + "_vertices.csv", "w") as file:
         # Get the attributes of the first node and use the keys as header
         file.write(",".join(graph.nodes[0].keys()))
         file.write("\n")
@@ -31,15 +36,16 @@ def writeGraphToTxt(graph, filename, ids=None):
             file.write("\n")
 
     # Open a file for writing the edges
-    with open(filename + "_edges.txt", "w") as file:
+    with open(filename + "_edges.csv", "w") as file:
         # Write the header
         file.write("from_id,to_id,weight\n")
         # Write all edges
         for idx, edge in enumerate(graph.edges(data=True)):
             # Use the ids from the graph if no further information is given
             if ids is None:
-                source = str(edge[0])
-                target = str(edge[1])
+                # Use the FID attribute of the nodes
+                source = str(graph.nodes[edge[0]]["FID"])
+                target = str(graph.nodes[edge[1]]["FID"])
             else:
                 # Use the lookup table to provide the original ids
                 source = str(ids[edge[0]])
@@ -51,32 +57,35 @@ def writeGraphToTxt(graph, filename, ids=None):
 
 
 def visualizeGraph(graph, subdivision):
-    """Visualize a connectivity graph of a planar subdivision."""
+    """Visualize a connectivity graph of a planar subdivision with vertex IDs matching those in _vertices.txt."""
 
-    # extract the centroids for connecting the regions, which is
-    # the average of the coordinates that define the polygon's boundary
-    centroids = np.column_stack(
-        (subdivision.centroid.x, subdivision.centroid.y))
-    # To plot with networkx, we need to merge the nodes back to
-    # their positions in order to plot in networkx
-    positions = dict(zip(graph.nodes, centroids))
+    # Use the same IDs as in writeGraphToTxt (first column of subdivision)
+    ids = subdivision.iloc[:, 0].values
+    id_map = dict(zip(graph.nodes, ids))
+
+    # extract the centroids for connecting the regions
+    centroids = np.column_stack((subdivision.centroid.x, subdivision.centroid.y))
+    # Only assign positions to nodes that correspond to actual polygons (not -1)
+    positions = {node: (x, y) for node, (x, y) in zip(graph.nodes, centroids) if node != -1}
 
     # plot with a nice basemap
     ax = subdivision.plot(linewidth=1, edgecolor="grey", facecolor="lightblue")
     ax.axis("off")
-    nx.draw(graph, positions, ax=ax, node_size=5, node_color="r")
+    # Draw only nodes with positions
+    nx.draw(graph.subgraph(positions.keys()), positions, ax=ax, node_size=5, node_color="purple")
+
+    # Add vertex IDs as labels (using the original IDs)
+    for node, (x, y) in positions.items():
+        ax.text(x, y, str(id_map[node]), fontsize=14, ha='center', va='center', color='red')
 
 
-def processDataset(dataset, path):
+def processDataset(dataset):
     print(dataset)
 
-    if path is None:
-        path = f"{dataset}/{dataset}.shp"
-    else:
-        path = f"{path}/{dataset}.shp"
+    path = os.path.join("res", "roads-reduced", f"{dataset}.shp")
 
     subdivision = geopandas.read_file(path)
-    print(subdivision.crs)
+    # print(subdivision.crs)
     rook = weights.Rook.from_dataframe(subdivision)
 
     shared = []
@@ -99,9 +108,29 @@ def processDataset(dataset, path):
         for n, d in dist.items():
             shared.append([source, n, d])
 
+    # Add the outside as a vertex with id -1
+    outside_idx = subdivision.shape[0]  # Use the next free index as outside vertex
+    # Find polygons that touch the exterior (boundary of the union of all polygons)
+    union_geom = subdivision.unary_union
+    exterior = union_geom.boundary
+    for idx, poly in subdivision.iterrows():
+        # If the polygon touches the exterior, add an edge to the outside vertex
+        if poly.geometry.touches(exterior):
+            # Use the length of the shared boundary with the exterior as weight
+            shared_length = poly.geometry.boundary.intersection(exterior).length
+            if shared_length > 0:
+                shared.append([outside_idx, idx, shared_length])
+
     # Then, we can convert the graph to networkx object using the
     # .to_networkx() method.
     graph = rook.to_networkx()
+
+    # Add the outside node with minimal attributes
+    # Set outside_idx to the next free index
+    graph.add_node(outside_idx)
+    graph.nodes[outside_idx]["FID"] = -1
+    graph.nodes[outside_idx]["area"] = 0
+
     # Write data from the polygons to the nodes
     for idx, poly in subdivision.iterrows():
         for col in subdivision:
@@ -111,11 +140,16 @@ def processDataset(dataset, path):
             graph.nodes[idx][col] = poly[col]
         # Add an additional area column
         graph.nodes[idx]["area"] = poly.geometry.area
+
     # Add the computed edge weights to the graph
     graph.add_weighted_edges_from(shared)
 
     # The command assumes that the ids are in the first column
-    writeGraphToTxt(graph, path.replace(".shp", ""), ids=subdivision.iloc[:, 0])
+    # ids =  list(subdivision.iloc[:, 0])
+
+
+    csv_path = os.path.join("res", "graphs", f"{dataset}", f"{dataset}")
+    writeGraphToCsv(graph, csv_path)
 
     visualizeGraph(graph, subdivision)
 
@@ -130,22 +164,11 @@ if __name__ == '__main__':
     #     "avignon", "braunschweig", "issoire", "karlsruhe", "neumuenster",
     #     "F_NUTS3_UTM"
     # ]
-    datasets = ["rheinruhr"]
+    datasets = ["issoire"]
     # datasets = ["F_NUTS3_UTM"]
     # with Pool() as p:
     #     p.map(processDataset, datasets)
 
-    args = parser.parse_args()
-    if args.dir is not None:
-        if os.path.isdir(args.dir):
-            print(f"Directory path is valid: {args.dir}")
-            current_path = args.dir
-        else:
-            print(f"Invalid directory path: {args.dir}")
-    else:
-        print("No directory path provided, using default path")
-        current_path = None
-
     for dataset in datasets:
-        processDataset(dataset, current_path)
+        processDataset(dataset)
     plt.show()
