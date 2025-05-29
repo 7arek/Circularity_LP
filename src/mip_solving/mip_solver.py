@@ -12,15 +12,16 @@ rights"
 """
 
 
-def solve_single_district_mip(DG: nx.DiGraph) -> tuple[list[int], gp.Model] | None:
+def solve_single_district_mip(DG: nx.DiGraph, area_lower_bound: float = 0) -> tuple[list[int], gp.Model] | None:
     """
     Solve the single district MIP model.
     :param DG: Directed graph representing the districting problem, where nodes have 'node_weight' and 'boundary_perim' attributes,
                     and edges have 'shared_perim' attribute.
+    :param area_lower_bound: Lower bound for the area.
     :return: A tuple containing the list of nodes in the district and the Gurobi model object.
     TODO: I dont know if this is correctly implemented (e.g. if the hyperparameters are set correctly).
     """
-    m = build_single_district_mip(DG)
+    m = build_single_district_mip(DG, area_lower_bound=area_lower_bound)
 
     # Set time limit for the optimization
     m.Params.TimeLimit = 3600  # 1 hour
@@ -40,7 +41,8 @@ def solve_single_district_mip(DG: nx.DiGraph) -> tuple[list[int], gp.Model] | No
     return solution, m
 
 
-def print_solution(m: gp.Model, solution: list[int], dataset_name: str, print_all_vars: bool = True) -> None:
+def print_solution(m: gp.Model, solution: list[int], dataset_name: str, print_all_vars:
+bool = True, file_suffix : str = None) -> None:
     """
     Print the solution of the MIP model and save it to a file.
     """
@@ -48,7 +50,7 @@ def print_solution(m: gp.Model, solution: list[int], dataset_name: str, print_al
     output_summary.append("######Solution summary######")
     output_summary.append(f"District nodes: {solution}")
     pp_inverse = float(m._z.x)
-    output_summary.append(f"Polsby-Popper score: {'infinity' if pp_inverse == 0 else f'{1/pp_inverse:.4f}'}")
+    output_summary.append(f"Polsby-Popper score: {'infinity' if pp_inverse == 0 else f'{1 / pp_inverse:.4f}'}")
     output_summary.append(f"Inverse Polsby-Popper score (Objective value): {m._z.x:.4f}")
     output_summary.append(f"Area: {m._A.x:.4f}")
     output_summary.append(f"Perimeter: {m._P.x:.4f}")
@@ -62,7 +64,7 @@ def print_solution(m: gp.Model, solution: list[int], dataset_name: str, print_al
 
     # Save the output string to a file
     os.makedirs(os.path.join("data", "solutions"), exist_ok=True)
-    solutions_path = os.path.join("data", "solutions", f"{dataset_name}.txt")
+    solutions_path = os.path.join("data", "solutions", f"{dataset_name}{file_suffix}.txt")
     with open(solutions_path, "w") as file:
         file.write("\n".join(output_summary + output_vars))
 
@@ -70,18 +72,16 @@ def print_solution(m: gp.Model, solution: list[int], dataset_name: str, print_al
     print("\n".join(output_summary))
 
 
-def save_solution_csv(solution: list[int], dataset_name: str) -> None:
+def save_solution_csv(solution: list[int], dataset_name: str, file_suffix : str = None) -> None:
     """
     Save the solution to a CSV file.
     :param solution: List of node IDs in the district.
     :param dataset_name: Name of the dataset (used for the output file).
     """
     os.makedirs(os.path.join("data", "solutions"), exist_ok=True)
-    solution_path = os.path.join("data", "solutions", f"{dataset_name}_vertices.csv")
+    solution_path = os.path.join("data", "solutions", f"{dataset_name}_vertices{file_suffix}.csv")
 
     with open(solution_path, "w") as file:
         file.write("[")
         file.write(",".join(map(str, solution)))
         file.write("]\n")  # Ensure the last line ends with a newline character
-
-

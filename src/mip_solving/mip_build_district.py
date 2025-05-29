@@ -12,12 +12,13 @@ rights"
 """
 
 
-def build_single_district_mip(DG : nx.DiGraph, root: int | None = None):
+def build_single_district_mip(DG : nx.DiGraph, root: int | None = None, area_lower_bound: float = 0) -> gp.Model:
     """
     Builds a MISOCP model for a single district in a directed graph DG, with the goal of maximizing the Polsby-Popper score.
     :param DG: Directed graph representing the districting problem, where nodes have 'node_weight' and 'boundary_perim' attributes,
                 and edges have 'shared_perim' attribute.
     :param root: Optional root node for the district, used to ensure contiguity. If None, no specific root is enforced.
+    :param area_lower_bound: Lower bound for the area of the district. If set to a positive value, it enforces a minimum area constraint.
     :return: A Gurobi model object representing the districting problem.
     """
 
@@ -74,10 +75,17 @@ def build_single_district_mip(DG : nx.DiGraph, root: int | None = None):
     m.update()
 
     ###################################
+    # ADD DISTRICT AREA LOWER BOUND CONSTRAINT
+    ###################################
+
+    m.addConstr(gp.quicksum(DG.nodes[i]['node_weight'] * m._x[i] for i in DG.nodes) >= area_lower_bound)
+
+    ###################################
     # ADD DISTRICT SIZE CONSTRAINT
     ###################################
 
-    m.addConstr(gp.quicksum(m._x[i] for i in DG.nodes) >= 1)
+    if area_lower_bound <=0:
+        m.addConstr(gp.quicksum(m._x[i] for i in DG.nodes) >= 1)
 
     ###################################
     # ADD CONTIGUITY CONSTRAINTS
