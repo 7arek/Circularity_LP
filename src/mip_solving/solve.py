@@ -26,8 +26,9 @@ def solve(dataset_name: str):
 
 if __name__ == '__main__':
     # datasets = ["issoire", "avignon", "braunschweig", "karlsruhe", "neumuenster"]
-    solve("issoire")
-    solve("avignon")
-    solve("braunschweig")
-    solve("karlsruhe")
-    solve("neumuenster")
+    # solve("issoire")
+    # solve("avignon")
+    # solve("braunschweig")
+    # solve("karlsruhe")
+    # solve("neumuenster")
+    solve("rheinruhr")

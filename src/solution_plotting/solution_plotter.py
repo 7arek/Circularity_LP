@@ -24,8 +24,12 @@ def plotShapefileWithHighlights(shapefile_path, solution_path, highlight_color="
     with open(solution_path, "r") as file:
         highlighted_ids = set(map(int, file.readline().strip().strip("[]").split(",")))
 
+
     # Add a column to indicate whether a polygon should be highlighted
-    subdivision["highlight"] = subdivision["FID"].isin(highlighted_ids)
+    if "FID" in subdivision.columns:
+        subdivision["highlight"] = subdivision["FID"].isin(highlighted_ids)
+    else:
+        subdivision["highlight"] = subdivision.index.isin(highlighted_ids)
 
     # Plot the shapefile
     ax = subdivision.plot(
@@ -49,9 +53,16 @@ def plotShapefileWithHighlights(shapefile_path, solution_path, highlight_color="
 if __name__ == '__main__':
     # dataset_name = "avignon"
     # dataset_name = "braunschweig"
-    dataset_name = "issoire"
+    # dataset_name = "issoire"
     # dataset_name = "karlsruhe"
     # dataset_name = "neumuenster"
-    shapefile_path = os.path.join("data", "shape", "roads-reduced", f"{dataset_name}.shp")
+    # shapefile_path = os.path.join("data", "shape", "roads-reduced", f"{dataset_name}.shp")
+    # solution_path = os.path.join("data", "solutions", f"{dataset_name}_vertices.csv")
+    # plotShapefileWithHighlights(shapefile_path, solution_path)
+
+
+
+    dataset_name = "rheinruhr"
+    shapefile_path = os.path.join("data", "shape", "rheinruhr", f"{dataset_name}.shp")
     solution_path = os.path.join("data", "solutions", f"{dataset_name}_vertices.csv")
     plotShapefileWithHighlights(shapefile_path, solution_path)
