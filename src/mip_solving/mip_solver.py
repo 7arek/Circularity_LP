@@ -71,17 +71,3 @@ bool = True, file_suffix : str = None) -> None:
     # Print only the solution summary to the console
     print("\n".join(output_summary))
 
-
-def save_solution_csv(solution: list[int], dataset_name: str, file_suffix : str = None) -> None:
-    """
-    Save the solution to a CSV file.
-    :param solution: List of node IDs in the district.
-    :param dataset_name: Name of the dataset (used for the output file).
-    """
-    os.makedirs(os.path.join("data", "solutions"), exist_ok=True)
-    solution_path = os.path.join("data", "solutions", f"{dataset_name}_vertices{file_suffix}.csv")
-
-    with open(solution_path, "w") as file:
-        file.write("[")
-        file.write(",".join(map(str, solution)))
-        file.write("]\n")  # Ensure the last line ends with a newline character

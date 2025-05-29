@@ -21,9 +21,6 @@ def solve(dataset_name: str, area_lower_bound: float = 0):
 
     print_solution(m, solution, dataset_name, file_suffix=file_suffix)
 
-    # Save the solution to a CSV file
-    save_solution_csv(solution, dataset_name, file_suffix=file_suffix)
-
     return solution, m
 
 

@@ -3,6 +3,7 @@ import matplotlib
 matplotlib.use('TkAgg')  # Use a standard backend (for pycharm)
 import matplotlib.pyplot as plt
 import os
+import re
 
 
 def plotShapefileWithHighlights(shapefile_path, solution_path, highlight_color="red", base_color="lightblue",
@@ -22,7 +23,7 @@ def plotShapefileWithHighlights(shapefile_path, solution_path, highlight_color="
 
     # Load the solution file (IDs to highlight)
     with open(solution_path, "r") as file:
-        highlighted_ids = set(map(int, file.readline().strip().strip("[]").split(",")))
+        highlighted_ids = set(map(int, re.findall(r'\d+', file.readlines()[1])))
 
 
     # Add a column to indicate whether a polygon should be highlighted
@@ -86,16 +87,16 @@ def plotShapefileWithHighlights(shapefile_path, solution_path, highlight_color="
 
 if __name__ == '__main__':
 
-    # datasets = ["avignon", "braunschweig", "issoire", "karlsruhe", "neumuenster"]
-    # for dataset_name in datasets:
-    #     shapefile_path = os.path.join("data", "shape", "roads-reduced", f"{dataset_name}.shp")
-    #     solution_path = os.path.join("data", "solutions", f"{dataset_name}_vertices.csv")
-    #     plotShapefileWithHighlights(shapefile_path, solution_path)
+    datasets = ["avignon", "braunschweig", "issoire", "karlsruhe", "neumuenster"]
+    for dataset_name in datasets:
+        shapefile_path = os.path.join("data", "shape", "roads-reduced", f"{dataset_name}.shp")
+        solution_path = os.path.join("data", "solutions", f"{dataset_name}.txt")
+        plotShapefileWithHighlights(shapefile_path, solution_path)
 
 
 
 
     dataset_name = "rheinruhr"
     shapefile_path = os.path.join("data", "shape", "rheinruhr", f"{dataset_name}.shp")
-    solution_path = os.path.join("data", "solutions", f"{dataset_name}_vertices.csv")
+    solution_path = os.path.join("data", "solutions", f"{dataset_name}.txt")
     plotShapefileWithHighlights(shapefile_path, solution_path)
