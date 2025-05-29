@@ -47,7 +47,7 @@ if __name__ == '__main__':
         solve(dataset, area_lower_bound=1e6)
         print(f"Finished solving {dataset}.\n")
     # solve("avignon", area_lower_bound=1e6)
-    # solve("avignon", area_lower_bound=1e-4)
+    solve("avignon", area_lower_bound=1e-4)
     # solve("avignon")
     # solve("braunschweig")
     # solve("karlsruhe")
