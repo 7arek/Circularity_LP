@@ -1,0 +1,90 @@
+
+Gurobi 12.0.2 (win64) logging started Thu May 29 14:01:38 2025
+
+Set parameter LogFile to value "data/solutions/issoire_LB=1000000.0/issoire_LB=1000000.0.log"
+Gurobi Optimizer version 12.0.2 build v12.0.2rc0 (win64 - Windows 11.0 (26100.2))
+
+CPU model: Intel(R) Core(TM) i5-14600KF, instruction set [SSE2|AVX|AVX2]
+Thread count: 14 physical cores, 20 logical processors, using up to 1 threads
+
+Non-default parameters:
+TimeLimit  3600
+FeasibilityTol  1e-07
+IntFeasTol  1e-07
+MIPGap  0
+Threads  1
+LazyConstraints  1
+
+Academic license 2670408 - for non-commercial use only - registered to s6___@uni-bonn.de
+Optimize a model with 229 rows, 277 columns and 1022 nonzeros
+Model fingerprint: 0x0dbc662f
+Model has 1 quadratic constraint
+Variable types: 3 continuous, 274 integer (274 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 2e+06]
+  QMatrix range    [1e+00, 1e+01]
+  Objective range  [1e+00, 1e+00]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+06, 1e+06]
+Presolve time: 0.00s
+Presolved: 229 rows, 277 columns, 1022 nonzeros
+Presolved model has 1 quadratic constraint(s)
+Variable types: 3 continuous, 274 integer (274 binary)
+
+Root relaxation: objective 0.000000e+00, 25 iterations, 0.00 seconds (0.00 work units)
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0    0.00000    0    -          -    0.00000      -     -    0s
+     0     0    0.15028    0   49          -    0.15028      -     -    0s
+     0     0    0.32018    0   51          -    0.32018      -     -    0s
+     0     0    0.72112    0   63          -    0.72112      -     -    0s
+H    0     0                       2.1884560    0.72740  66.8%     -    0s
+     0     0    0.72740    0   64    2.18846    0.72740  66.8%     -    0s
+     0     0    0.78274    0   64    2.18846    0.78274  64.2%     -    0s
+H    0     0                       1.5720380    0.79098  49.7%     -    0s
+H    0     0                       1.4053147    0.79098  43.7%     -    0s
+     0     0    0.92148    0   67    1.40531    0.92148  34.4%     -    0s
+     0     0    0.98166    0   73    1.40531    0.98166  30.1%     -    0s
+     0     0    1.07026    0   75    1.40531    1.07026  23.8%     -    0s
+     0     0    1.09952    0   83    1.40531    1.09952  21.8%     -    0s
+H    0     0                       1.4019500    1.10080  21.5%     -    0s
+H    0     0                       1.3407577    1.10080  17.9%     -    0s
+H    0     0                       1.3305725    1.10080  17.3%     -    0s
+     0     0    1.10080    0   94    1.33057    1.10080  17.3%     -    0s
+     0     0    1.11408    0   98    1.33057    1.11408  16.3%     -    0s
+H    0     0                       1.3269748    1.11441  16.0%     -    0s
+     0     0    1.11659    0  100    1.32697    1.11659  15.9%     -    0s
+     0     0    1.13442    0   94    1.32697    1.13442  14.5%     -    0s
+H    0     0                       1.2922708    1.13464  12.2%     -    0s
+     0     0    1.14115    0   97    1.29227    1.14115  11.7%     -    0s
+H    0     0                       1.2815790    1.14160  10.9%     -    0s
+     0     0    1.15162    0   94    1.28158    1.15162  10.1%     -    0s
+     0     0    1.16358    0   88    1.28158    1.16358  9.21%     -    0s
+     0     0    1.16699    0   90    1.28158    1.16699  8.94%     -    0s
+H    0     0                       1.2786558    1.16988  8.51%     -    0s
+     0     0    1.16988    0   90    1.27866    1.16988  8.51%     -    0s
+     0     0    1.16988    0   99    1.27866    1.16988  8.51%     -    0s
+     0     0    1.16988    0   99    1.27866    1.16988  8.51%     -    0s
+H    0     0                       1.2739240    1.16988  8.17%     -    0s
+     0     2    1.17227    0   99    1.27392    1.17227  7.98%     -    0s
+H   28     3                       1.2668705    1.26687  0.00%   1.1    0s
+
+Cutting planes:
+  Gomory: 1
+  Cover: 12
+  MIR: 3
+  RLT: 6
+  Lazy constraints: 2
+
+Explored 29 nodes (524 simplex iterations) in 0.13 seconds (0.12 work units)
+Thread count was 1 (of 20 available processors)
+
+Solution count 10: 1.26687 1.27392 1.27866 ... 1.40531
+
+Optimal solution found (tolerance 0.00e+00)
+Warning: max constraint violation (3.9116e-07) exceeds tolerance
+Best objective 1.266870494393e+00, best bound 1.266870494393e+00, gap 0.0000%
+
+User-callback calls 359, time in user-callback 0.01 sec

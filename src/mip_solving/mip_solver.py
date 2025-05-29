@@ -29,6 +29,12 @@ def solve_single_district_mip(DG: nx.DiGraph, area_lower_bound: float = 0) -> tu
     # Limit to 1 Thread
     m.Params.Threads = 1
 
+    # Set the log file for Gurobi
+    suffix = f"_LB={area_lower_bound}" if area_lower_bound > 0 else ""
+    gurobi_logfile = f"data/solutions/{DG.graph['dataset_name']}{suffix}/{DG.graph['dataset_name']}{suffix}.log"
+    os.makedirs(os.path.dirname(gurobi_logfile), exist_ok=True)
+    m.setParam('LogFile', DG.graph.get('gurobi_logfile', gurobi_logfile))
+
     # Optimize the model
     m.optimize(m._callback)
 
@@ -41,7 +47,7 @@ def solve_single_district_mip(DG: nx.DiGraph, area_lower_bound: float = 0) -> tu
     return solution, m
 
 
-def print_solution(m: gp.Model, solution: list[int], dataset_name: str, print_all_vars:
+def print_and_save_solution(m: gp.Model, solution: list[int], dataset_name: str, print_all_vars:
 bool = True, file_suffix : str = None) -> None:
     """
     Print the solution of the MIP model and save it to a file.
@@ -49,6 +55,7 @@ bool = True, file_suffix : str = None) -> None:
     output_summary = []
     output_summary.append("######Solution summary######")
     output_summary.append(f"District nodes: {solution}")
+    output_summary.append(f"Suffix: {file_suffix if file_suffix else '-None-'}")
     pp_inverse = float(m._z.x)
     output_summary.append(f"Polsby-Popper score: {'infinity' if pp_inverse == 0 else f'{1 / pp_inverse:.4f}'}")
     output_summary.append(f"Inverse Polsby-Popper score (Objective value): {m._z.x:.4f}")
@@ -64,7 +71,7 @@ bool = True, file_suffix : str = None) -> None:
 
     # Save the output string to a file
     os.makedirs(os.path.join("data", "solutions"), exist_ok=True)
-    solutions_path = os.path.join("data", "solutions", f"{dataset_name}{file_suffix}.txt")
+    solutions_path = os.path.join("data", "solutions",f"{dataset_name}{file_suffix}", f"{dataset_name}{file_suffix}.txt")
     with open(solutions_path, "w") as file:
         file.write("\n".join(output_summary + output_vars))
 
