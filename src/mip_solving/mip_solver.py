@@ -4,7 +4,7 @@ import networkx as nx
 import gurobipy as gp
 from gurobipy import GRB
 
-from district import build_single_district_mip
+from mip_build_district import build_single_district_mip
 
 """
 Code based on "Political districting to optimize the Polsby-Popper compactness score with application to  voting
